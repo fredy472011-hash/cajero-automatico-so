@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Cajero Automático</title>
+    <link rel="stylesheet" href="css/cajero.css">
+</head>
+<body>
+
+<header class="encabezado">
+    <h1>Simulador de Cajero Automático</h1>
+    <p>Informática VI — Sistemas Operativos · procesos, memoria, CPU y entrada/salida</p>
+</header>
+
+<main class="tablero">
+
+    <!-- ============================================================
+         IZQUIERDA: el cajero físico
+         ============================================================ -->
+    <section class="cajero" aria-label="Cajero automático">
+
+        <div class="marca">BANCO SIMULADO</div>
+
+        <div class="cuerpo-cajero">
+
+            <!-- Botones laterales izquierdos, como en un cajero real -->
+            <div class="botones-laterales izquierda">
+                <button class="lateral" data-lateral="0"></button>
+                <button class="lateral" data-lateral="1"></button>
+                <button class="lateral" data-lateral="2"></button>
+                <button class="lateral" data-lateral="3"></button>
+            </div>
+
+            <!-- LA PANTALLA -->
+            <div class="pantalla">
+                <div class="pantalla-barra">
+                    <span id="pantalla-estado">ESPERANDO_TARJETA</span>
+                    <span id="pantalla-reloj">--:--:--</span>
+                </div>
+
+                <h2 class="pantalla-titulo" id="pantalla-titulo">Inserte su tarjeta</h2>
+                <p class="pantalla-mensaje" id="pantalla-mensaje"></p>
+
+                <!-- Cada vista se muestra según el estado que manda el backend -->
+
+                <div class="vista" id="vista-ESPERANDO_TARJETA">
+                    <p class="ayuda">Número de tarjeta de prueba</p>
+                    <input type="text" id="numero-tarjeta" value="1001" maxlength="20"
+                           inputmode="numeric" autocomplete="off">
+                    <button class="boton principal" id="btn-insertar">Insertar tarjeta</button>
+                    <p class="ayuda tenue">Cuentas de prueba: 1001 · 1002 · 1003</p>
+                </div>
+
+                <div class="vista oculta" id="vista-PIN">
+                    <div class="puntos-pin" id="puntos-pin"></div>
+                    <p class="ayuda tenue">Use el teclado numérico</p>
+                </div>
+
+                <div class="vista oculta" id="vista-VALIDACION_MES">
+                    <div class="meses" id="meses"></div>
+                </div>
+
+                <div class="vista oculta" id="vista-MENU">
+                    <div class="opciones">
+                        <button class="boton" data-operacion="EXTRACCION">Extracción</button>
+                        <button class="boton" data-operacion="DEPOSITO">Depósito</button>
+                        <button class="boton" data-operacion="SALDO">Consulta de saldo</button>
+                    </div>
+                </div>
+
+                <div class="vista oculta" id="vista-MONTOS">
+                    <div class="opciones montos" id="montos"></div>
+                    <button class="boton tenue-borde" id="btn-otro-valor">Otro valor</button>
+                </div>
+
+                <div class="vista oculta" id="vista-OTRO_VALOR">
+                    <div class="monto-ingresado" id="monto-ingresado">0</div>
+                    <p class="ayuda tenue">Múltiplos de 50.000</p>
+                    <button class="boton principal" id="btn-confirmar-monto">Confirmar</button>
+                </div>
+
+                <div class="vista oculta" id="vista-DEPOSITO">
+                    <div class="monto-ingresado" id="monto-deposito">0</div>
+                    <p class="ayuda tenue">Ingrese el monto a depositar</p>
+                    <button class="boton principal" id="btn-confirmar-deposito">Confirmar</button>
+                </div>
+
+                <div class="vista oculta" id="vista-CONSULTA_SALDO">
+                    <div class="saldo-grande" id="saldo-grande">Gs. 0</div>
+                    <ul class="movimientos" id="movimientos"></ul>
+                    <button class="boton" id="btn-volver-menu">Volver al menú</button>
+                </div>
+
+                <div class="vista oculta" id="vista-PROCESANDO">
+                    <div class="cargando" aria-hidden="true"></div>
+                    <p class="ayuda">Por favor, aguarde un momento</p>
+                </div>
+
+                <div class="vista oculta" id="vista-DISPENSANDO">
+                    <div class="billetes" id="billetes"></div>
+                    <p class="ayuda">Retire su dinero</p>
+                    <button class="boton principal" id="btn-fin-retiro">Finalizar</button>
+                </div>
+
+                <div class="vista oculta" id="vista-RECIBO">
+                    <p class="ayuda">¿Desea un recibo?</p>
+                    <div class="opciones">
+                        <button class="boton" id="btn-recibo-si">Mostrar en pantalla</button>
+                        <button class="boton tenue-borde" id="btn-recibo-no">No, gracias</button>
+                    </div>
+                </div>
+
+                <div class="vista oculta" id="vista-ERROR">
+                    <p class="ayuda error">Operación no completada</p>
+                    <button class="boton" id="btn-error-menu">Volver al menú</button>
+                </div>
+
+                <div class="vista oculta" id="vista-FINALIZADO">
+                    <p class="ayuda">Gracias por su visita</p>
+                    <button class="boton principal" id="btn-nueva-sesion">Nueva sesión</button>
+                </div>
+
+                <!-- Datos del titular, visibles una vez autenticado -->
+                <div class="pie-pantalla oculta" id="pie-pantalla">
+                    <span id="titular">—</span>
+                    <span id="saldo-pie">Gs. 0</span>
+                </div>
+            </div>
+
+            <!-- Botones laterales derechos -->
+            <div class="botones-laterales derecha">
+                <button class="lateral" data-lateral="4"></button>
+                <button class="lateral" data-lateral="5"></button>
+                <button class="lateral" data-lateral="6"></button>
+                <button class="lateral" data-lateral="7"></button>
+            </div>
+        </div>
+
+        <!-- TECLADO NUMÉRICO -->
+        <div class="teclado">
+            <div class="teclas" id="teclas">
+                <button class="tecla" data-tecla="1">1</button>
+                <button class="tecla" data-tecla="2">2</button>
+                <button class="tecla" data-tecla="3">3</button>
+                <button class="tecla" data-tecla="4">4</button>
+                <button class="tecla" data-tecla="5">5</button>
+                <button class="tecla" data-tecla="6">6</button>
+                <button class="tecla" data-tecla="7">7</button>
+                <button class="tecla" data-tecla="8">8</button>
+                <button class="tecla" data-tecla="9">9</button>
+                <button class="tecla vacia" disabled></button>
+                <button class="tecla" data-tecla="0">0</button>
+                <button class="tecla vacia" disabled></button>
+            </div>
+            <div class="teclas-accion">
+                <button class="tecla accion cancelar" id="btn-cancelar">CANCELAR</button>
+                <button class="tecla accion borrar" id="btn-borrar">BORRAR</button>
+                <button class="tecla accion confirmar" id="btn-confirmar">CONFIRMAR</button>
+            </div>
+        </div>
+
+        <!-- Ranuras físicas -->
+        <div class="ranuras">
+            <div class="ranura"><span>Tarjeta</span></div>
+            <div class="ranura" id="ranura-billetes"><span>Billetes</span></div>
+            <div class="ranura"><span>Recibo</span></div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         DERECHA: lo que pasa adentro (esto es lo que evalúa la materia)
+         ============================================================ -->
+    <section class="panel" aria-label="Estado interno del sistema">
+
+        <h2>Dentro del sistema operativo</h2>
+
+        <!-- MEMORIA -->
+        <article class="bloque">
+            <h3>Memoria</h3>
+            <div class="memorias">
+                <div class="memoria volatil">
+                    <h4>RAM — volátil</h4>
+                    <p class="nota">La sesión. Se borra al cancelar.</p>
+                    <dl id="memoria-ram">
+                        <dt>Pantalla</dt><dd id="ram-pantalla">—</dd>
+                        <dt>Tarjeta</dt><dd id="ram-tarjeta">—</dd>
+                        <dt>PIN validado</dt><dd id="ram-pin">no</dd>
+                        <dt>Monto en curso</dt><dd id="ram-monto">0</dd>
+                    </dl>
+                </div>
+                <div class="memoria persistente">
+                    <h4>Largo plazo — MySQL</h4>
+                    <p class="nota">Sobrevive al apagado.</p>
+                    <ul class="movimientos" id="panel-movimientos">
+                        <li class="tenue">sin movimientos</li>
+                    </ul>
+                </div>
+            </div>
+        </article>
+
+        <!-- PROCESOS -->
+        <article class="bloque">
+            <h3>Procesos
+                <span class="etiqueta" id="politica">—</span>
+                <span class="etiqueta" id="en-cola">en cola: 0</span>
+            </h3>
+            <table class="tabla-procesos">
+                <thead>
+                <tr><th>PID</th><th>Tipo</th><th>Estado</th><th>Prio</th><th>Resultado</th></tr>
+                </thead>
+                <tbody id="tabla-procesos">
+                <tr><td colspan="5" class="tenue">sin procesos todavía</td></tr>
+                </tbody>
+            </table>
+        </article>
+
+        <!-- ENTRADA / SALIDA -->
+        <article class="bloque">
+            <h3>Entrada / salida — casetes</h3>
+            <div class="casetes" id="casetes"></div>
+            <p class="nota">Efectivo en el cajero: <strong id="efectivo-total">Gs. 0</strong></p>
+        </article>
+
+        <!-- BITÁCORA -->
+        <article class="bloque">
+            <h3>Bitácora de cambios de estado</h3>
+            <pre class="bitacora" id="bitacora">esperando actividad…</pre>
+        </article>
+    </section>
+</main>
+
+<script src="js/cajero.js"></script>
+</body>
+</html>

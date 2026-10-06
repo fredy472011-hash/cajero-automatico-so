@@ -1,0 +1,25 @@
+# Compilados de Java
+backend/out/
+*.class
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio Code
+.vscode/
+
+# Dependencias descargadas (el driver pesa ~2,5 MB)
+backend/lib/*.jar
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Credenciales: nunca van al repositorio
+.env
+*.local.properties
+!backend/lib/LEEME.md
