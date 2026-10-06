@@ -12,6 +12,94 @@ asignándose y liberándose, y la entrada/salida bloqueando la ejecución.
 
 ---
 
+## Antes de empezar: qué hay que descargar
+
+El repositorio **no incluye** los programas ni el driver, porque son archivos
+grandes que cada uno baja una sola vez y sirven para todos los proyectos.
+
+### 1. Clonar el proyecto
+
+```bash
+git clone https://github.com/fredy472011-hash/cajero-automatico-so.git
+cd cajero-automatico-so
+```
+
+### 2. JDK 21 (o 17 en adelante)
+
+Es el que compila y ejecuta el Java. **Hace falta el JDK, no el JRE**: el JRE solo
+ejecuta, no trae `javac`.
+
+> https://adoptium.net/es/temurin/releases/ → Windows x64, JDK, `.msi`
+
+Durante la instalación, tildar **"Set JAVA_HOME variable"**.
+
+Comprobar que quedó bien:
+
+```bash
+java -version      # debe decir 21 (o 17)
+javac -version     # si este falla, instalaste el JRE y no el JDK
+```
+
+### 3. MySQL 8
+
+Es donde vive la memoria de largo plazo del cajero.
+
+> https://dev.mysql.com/downloads/installer/ → *MySQL Installer for Windows*,
+> opción **Server only** (no hace falta Workbench, aunque ayuda para mirar las tablas)
+
+En la instalación pide una contraseña para el usuario `root`. **Anotarla**: hay que
+ponerla en el paso 5.
+
+### 4. Driver JDBC de MySQL
+
+`java.sql` viene dentro del JDK, pero es solo la **interfaz**. La implementación que
+sabe hablar con MySQL está en este `.jar`, y hay que bajarlo aparte.
+
+> https://dev.mysql.com/downloads/connector/j/ → **Platform Independent** →
+> descargar el `.zip`, descomprimir y copiar `mysql-connector-j-9.4.0.jar`
+> dentro de la carpeta `backend/lib/`
+
+Si falta, el error al arrancar es:
+
+```
+No suitable driver found for jdbc:mysql://localhost:3306/cajero
+```
+
+### 5. Decirle la contraseña de MySQL al programa
+
+Las credenciales **no están escritas en el código** —eso es una mala práctica y en un
+repositorio público es directamente un problema de seguridad—. Se leen de variables
+de entorno. Si no se definen, el programa prueba con `root`/`root`.
+
+Si tu `root` tiene otra contraseña, en PowerShell:
+
+```powershell
+$env:DB_PASSWORD = "tu_contrasenha"
+```
+
+Eso vale solo para esa ventana de terminal. Para que quede fijo, agregarla en
+*Variables de entorno* de Windows.
+
+### Resumen
+
+| Qué | Para qué | Tamaño aprox. |
+|---|---|---|
+| JDK 21 | compilar y ejecutar | 180 MB |
+| MySQL 8 Server | la base de datos | 250 MB |
+| `mysql-connector-j-9.4.0.jar` | que Java pueda hablar con MySQL | 2,5 MB |
+
+### Nota para quien trabaje solo en el frontend
+
+Igual hace falta todo lo anterior, porque las pantallas se dibujan con los datos que
+devuelve el backend. Abrir `frontend/index.html` con doble clic **no funciona**: el
+navegador lo cargaría desde el disco (`file://`) y los pedidos a `/api/estado`
+fallarían. Hay que arrancar el servidor y entrar por `http://localhost:8080`.
+
+Lo bueno es que el backend no se vuelve a compilar al editar el frontend: se cambia
+el HTML, el CSS o el JS, se recarga la página con **Ctrl+F5** y listo.
+
+---
+
 ## Cómo correrlo
 
 ```bash
